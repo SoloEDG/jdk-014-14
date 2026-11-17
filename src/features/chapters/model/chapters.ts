@@ -1,7 +1,18 @@
 import { ref, type Ref } from "vue";
-import type { ComicDocument } from "../../../shared/document";
+import type {
+  Bookmark,
+  ComicDocument,
+  ReadingLocation,
+} from "../../../shared/document";
 import { renameChapter, moveChapter, deleteChapter } from "../lib/operations";
-export function useChapters(doc: Ref<ComicDocument>, changed: () => void) {
+import { useStructure } from "./structure";
+
+export function useChapters(
+  doc: Ref<ComicDocument>,
+  changed: () => void,
+  bookmarks: Ref<Bookmark[]>,
+  location: Ref<ReadingLocation>,
+) {
   const editing = ref(""),
     draft = ref(""),
     error = ref("");
@@ -28,5 +39,15 @@ export function useChapters(doc: Ref<ComicDocument>, changed: () => void) {
     }
     changed();
   }
-  return { editing, draft, error, begin, rename, move, remove };
+  const structure = useStructure(doc, bookmarks, location, changed);
+  return {
+    editing,
+    draft,
+    error,
+    begin,
+    rename,
+    move,
+    remove,
+    structure,
+  };
 }

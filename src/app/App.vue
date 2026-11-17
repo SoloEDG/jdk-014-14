@@ -31,13 +31,18 @@ const current = r.current,
   metrics = p.metrics,
   bookmarks = p.bookmarks,
   status = p.status,
-  cue = a.cue;
+  cue = a.cue,
+  s = c.structure;
 const chapterIndex = computed(
   () => doc.value.chapters.findIndex((c) => c.id === at.value.chapterId) + 1,
 );
 function focus(id: string) {
   r.dispatch({ type: "panel", id });
   r.setMode("panel");
+}
+function saveDialogue(text: string) {
+  const panel = r.current.value.panel;
+  if (panel) panel.dialogue = text;
 }
 </script>
 <template>
@@ -80,12 +85,40 @@ function focus(id: string) {
           :editing="c.editing.value"
           :draft="c.draft.value"
           :error="c.error.value"
+          :structure-status="s.status.value"
+          :dialog="s.dialog.value"
+          :split-preview="s.splitPreview.value"
+          :merge-preview="s.mergePreview.value"
+          :current-page-is-split-point="s.currentPageIsSplitPoint.value"
+          :active-page-id="at.pageId"
+          :split-chapter-id="s.splitChapterId.value"
+          :split-page-id="s.splitPageId.value"
+          :boundary="s.boundary.value"
+          :structure-draft-title="s.draftTitle.value"
+          :merge-ids="s.mergeIds.value"
+          :history="s.history.value"
+          :aliases="s.aliases.value"
+          :conflicts="s.conflicts.value"
+          :conflict-record="s.conflictRecord.value"
           @select="r.dispatch({ type: 'chapter', id: $event })"
           @rename="c.begin"
           @move="c.move"
           @remove="c.remove"
+          @split="s.openSplit"
+          @open-merge="s.openMerge"
+          @open-history="s.openHistory"
           @draft="c.draft.value = $event"
           @save="c.rename"
+          @close-dialog="s.close"
+          @choose-split-chapter="s.openSplit"
+          @choose-split-page="s.splitPageId.value = $event"
+          @set-boundary="s.boundary.value = $event"
+          @set-structure-title="s.draftTitle.value = $event"
+          @toggle-merge="s.toggleMerge"
+          @confirm-split="s.confirmSplit"
+          @confirm-merge="s.confirmMerge"
+          @request-undo="s.requestUndo"
+          @dismiss-conflict="s.dismissConflict"
         /><LibraryPanel
           :busy="l.busy.value"
           :message="l.message.value"
@@ -165,6 +198,7 @@ function focus(id: string) {
           @toggle="a.toggle"
           @volume="a.volume.value = $event"
           @dialogue="a.dialogue.value = !a.dialogue.value"
+          @edit-dialogue="saveDialogue"
         /><ProgressPanel
           :bookmarks="bookmarks"
           :percent="metrics.percent"

@@ -14,10 +14,15 @@ export function useWorkspace() {
       reader.dispatch({ type: "chapter", id });
       progress.reconcile();
     }),
-    chapters = useChapters(doc, () => {
-      reader.reconcile();
-      progress.reconcile();
-    }),
+    chapters = useChapters(
+      doc,
+      () => {
+        reader.reconcile();
+        progress.reconcile();
+      },
+      progress.bookmarks,
+      reader.location,
+    ),
     panel = computed(() => reader.current.value.panel),
     audio = useAudio(panel);
   function keydown(e: KeyboardEvent) {

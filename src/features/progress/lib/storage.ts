@@ -27,6 +27,16 @@ export function readSession(): SavedSession | null {
       for (const p of c.pages)
         if (!p.panels?.length || typeof p.image !== "string") return null;
     }
+    if (
+      value.document.structureHistory !== undefined &&
+      !Array.isArray(value.document.structureHistory)
+    )
+      return null;
+    if (
+      value.document.chapterAliases !== undefined &&
+      !Array.isArray(value.document.chapterAliases)
+    )
+      return null;
     return value;
   } catch {
     return null;

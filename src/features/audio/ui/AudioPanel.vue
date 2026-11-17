@@ -1,13 +1,16 @@
 <script setup lang="ts">
+import { ref, watch } from "vue";
 import {
   Headphones,
   Volume2,
   Play,
   Pause,
   MessageSquare,
+  Pencil,
+  Check,
 } from "lucide-vue-next";
 import { volumeLabel } from "../lib/cues";
-defineProps<{
+const props = defineProps<{
   enabled: boolean;
   volume: number;
   dialogue: boolean;
@@ -18,7 +21,25 @@ const emit = defineEmits<{
   toggle: [];
   volume: [value: number];
   dialogue: [];
+  editDialogue: [text: string];
 }>();
+const editing = ref(false),
+  draft = ref("");
+watch(
+  () => props.cue.text,
+  () => {
+    editing.value = false;
+  },
+);
+function startEdit() {
+  draft.value = props.cue.text;
+  editing.value = true;
+}
+function saveEdit() {
+  const text = draft.value.trim();
+  if (text) emit("editDialogue", text);
+  editing.value = false;
+}
 </script>
 <template>
   <section class="audio-panel">
@@ -83,7 +104,22 @@ const emit = defineEmits<{
     </div>
     <div v-if="dialogue" class="dialogue-card">
       <small>{{ cue.speaker }}</small>
-      <p>“{{ cue.text }}”</p>
+      <template v-if="!editing">
+        <p>“{{ cue.text }}”</p>
+        <button class="dialogue-edit" title="编辑当前分镜对白" @click="startEdit">
+          <Pencil :size="11" /> 编辑对白
+        </button>
+      </template>
+      <form v-else class="dialogue-edit-form" @submit.prevent="saveEdit">
+        <textarea
+          aria-label="对白内容"
+          rows="3"
+          v-model="draft"
+        ></textarea>
+        <button class="dialogue-save" type="submit">
+          <Check :size="11" /> 保存
+        </button>
+      </form>
       <div class="dialogue-dots">● <span>● ●</span></div>
     </div>
     <p v-else class="muted">对白已隐藏</p>

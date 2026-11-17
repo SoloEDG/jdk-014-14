@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { ChevronUp, ChevronDown, Pencil, Trash2 } from "lucide-vue-next";
+import {
+  ChevronUp,
+  ChevronDown,
+  Pencil,
+  Trash2,
+  Scissors,
+} from "lucide-vue-next";
 import type { Chapter } from "../../../shared/document";
 defineProps<{ chapter: Chapter; active: boolean; number: number }>();
 const emit = defineEmits<{
@@ -7,6 +13,7 @@ const emit = defineEmits<{
   rename: [];
   move: [delta: number];
   remove: [];
+  split: [];
 }>();
 </script>
 <template>
@@ -29,6 +36,8 @@ const emit = defineEmits<{
         <ChevronUp :size="13" /></button
       ><button title="向下移动章节" @click="emit('move', 1)">
         <ChevronDown :size="13" /></button
+      ><button title="按选定页面拆分本章" @click="emit('split')">
+        <Scissors :size="12" /></button
       ><button title="重命名章节" @click="emit('rename')">
         <Pencil :size="12" /></button
       ><button title="删除章节" @click="emit('remove')">
